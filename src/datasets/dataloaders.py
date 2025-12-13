@@ -12,6 +12,7 @@ def get_pcam_dataloaders(
     batch_size: int = 64,
     num_workers: int = 0,      # <--- HIER: 0 statt 4
     center_crop_size: int = 64,
+    limit_per_split: int | None = None,
 ) -> Dict[str, DataLoader]:
     """Return train/val/test dataloaders for PCam."""
     datasets = get_pcam_datasets(data_root, center_crop_size=center_crop_size)
@@ -19,6 +20,12 @@ def get_pcam_dataloaders(
     loaders: Dict[str, DataLoader] = {}
 
     for split, ds in datasets.items():
+        if limit_per_split:
+            # For quick debugging: only use the first N samples of each split.
+            from torch.utils.data import Subset
+
+            ds = Subset(ds, range(limit_per_split))
+
         loaders[split] = DataLoader(
             ds,
             batch_size=batch_size,

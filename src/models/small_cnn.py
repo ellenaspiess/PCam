@@ -4,7 +4,7 @@ from torch import nn
 class SmallCNN(nn.Module):
     """Small CNN for PCam binary classification."""
 
-    def __init__(self, num_classes: int = 1) -> None:
+    def __init__(self, num_classes: int = 1, dropout_p: float = 0.1) -> None:
         super().__init__()
 
         self.features = nn.Sequential(
@@ -25,7 +25,10 @@ class SmallCNN(nn.Module):
         )
 
         self.global_pool = nn.AdaptiveAvgPool2d(1)
-        self.classifier = nn.Linear(128, num_classes)
+        self.classifier = nn.Sequential(
+            nn.Dropout(dropout_p),
+            nn.Linear(128, num_classes),
+        )
 
     def forward(self, x):
         x = self.features(x)

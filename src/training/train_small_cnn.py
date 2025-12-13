@@ -44,8 +44,14 @@ def train(
     num_epochs: int = 5,
     batch_size: int = 64,
     lr: float = 1e-3,
+    device: str | torch.device | None = None,
+    limit_per_split: int | None = None,
 ):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = (
+        torch.device(device)
+        if device is not None
+        else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    )
     print("Using device:", device)
 
     dataloaders = get_pcam_dataloaders(
@@ -53,6 +59,7 @@ def train(
         batch_size=batch_size,
         center_crop_size=64,
         num_workers=0,   # <--- hier explizit
+        limit_per_split=limit_per_split,
     )
 
     model = SmallCNN().to(device)
