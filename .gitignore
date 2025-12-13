@@ -3,3 +3,4 @@ __pycache__/
 data/
 experiments/runs/
 experiments/logs/
+.DS_Store
