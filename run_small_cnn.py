@@ -17,4 +17,5 @@ if __name__ == "__main__":
         num_epochs=5,
         batch_size=64,
         lr=1e-3,
+        dropout_p=0.1,
     )
