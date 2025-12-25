@@ -4,6 +4,7 @@ from typing import Dict
 
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
+import h5py
 
 
 def get_pcam_transforms(center_crop_size: int = 64, train: bool = True):
@@ -59,5 +60,13 @@ def get_pcam_datasets(
         transform=get_pcam_transforms(center_crop_size, train=False),
         download=True,
     )
+
+    # Some torchvision versions expect an `h5py` attribute on the PCAM
+    # dataset instance when accessing HDF5 internals (used during pickling
+    # or length computation). Ensure the attribute exists and points to the
+    # imported h5py module to avoid AttributeError in DataLoader contexts.
+    for ds in (train_set, val_set, test_set):
+        if not hasattr(ds, "h5py"):
+            setattr(ds, "h5py", h5py)
 
     return {"train": train_set, "val": val_set, "test": test_set}
