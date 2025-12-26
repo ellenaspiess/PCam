@@ -1,0 +1,109 @@
+
+--- Training: CNN_Std ---
+Epoch 01: Val-AUPRC = 0.8570 (Best: 0.0000)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 02: Val-AUPRC = 0.8866 (Best: 0.8570)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 03: Val-AUPRC = 0.8945 (Best: 0.8866)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 04: Val-AUPRC = 0.8958 (Best: 0.8945)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 05: Val-AUPRC = 0.8914 (Best: 0.8958)
+⚠️ Keine Verbesserung (1/4)
+Epoch 06: Val-AUPRC = 0.9196 (Best: 0.8958)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 07: Val-AUPRC = 0.9242 (Best: 0.9196)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 08: Val-AUPRC = 0.9174 (Best: 0.9242)
+⚠️ Keine Verbesserung (1/4)
+Epoch 09: Val-AUPRC = 0.9250 (Best: 0.9242)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 10: Val-AUPRC = 0.9039 (Best: 0.9250)
+⚠️ Keine Verbesserung (1/4)
+Epoch 11: Val-AUPRC = 0.9284 (Best: 0.9250)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 12: Val-AUPRC = 0.9223 (Best: 0.9284)
+⚠️ Keine Verbesserung (1/4)
+Epoch 13: Val-AUPRC = 0.9226 (Best: 0.9284)
+⚠️ Keine Verbesserung (2/4)
+Epoch 14: Val-AUPRC = 0.9187 (Best: 0.9284)
+⚠️ Keine Verbesserung (3/4)
+Epoch 15: Val-AUPRC = 0.9313 (Best: 0.9284)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 16: Val-AUPRC = 0.9251 (Best: 0.9313)
+⚠️ Keine Verbesserung (1/4)
+Epoch 17: Val-AUPRC = 0.9389 (Best: 0.9313)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 18: Val-AUPRC = 0.9299 (Best: 0.9389)
+⚠️ Keine Verbesserung (1/4)
+Epoch 19: Val-AUPRC = 0.9190 (Best: 0.9389)
+⚠️ Keine Verbesserung (2/4)
+Epoch 20: Val-AUPRC = 0.9385 (Best: 0.9389)
+⚠️ Keine Verbesserung (3/4)
+Bestes Modell gespeichert unter: models/ablation_study\CNN_Std_best_model_ablation.pth
+
+--- Training: CNN_Weighted ---
+Epoch 01: Val-AUPRC = 0.8783 (Best: 0.0000)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 02: Val-AUPRC = 0.8218 (Best: 0.8783)
+⚠️ Keine Verbesserung (1/4)
+Epoch 03: Val-AUPRC = 0.9049 (Best: 0.8783)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 04: Val-AUPRC = 0.8903 (Best: 0.9049)
+⚠️ Keine Verbesserung (1/4)
+Epoch 05: Val-AUPRC = 0.9087 (Best: 0.9049)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 06: Val-AUPRC = 0.9094 (Best: 0.9087)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 07: Val-AUPRC = 0.9047 (Best: 0.9094)
+⚠️ Keine Verbesserung (1/4)
+Epoch 08: Val-AUPRC = 0.9198 (Best: 0.9094)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 09: Val-AUPRC = 0.9140 (Best: 0.9198)
+⚠️ Keine Verbesserung (1/4)
+Epoch 10: Val-AUPRC = 0.9058 (Best: 0.9198)
+⚠️ Keine Verbesserung (2/4)
+Epoch 11: Val-AUPRC = 0.9159 (Best: 0.9198)
+⚠️ Keine Verbesserung (3/4)
+Epoch 12: Val-AUPRC = 0.9145 (Best: 0.9198)
+⚠️ Keine Verbesserung (4/4)
+🛑 Early Stopping! Training abgebrochen in Epoche 12
+Bestes Modell gespeichert unter: models/ablation_study\CNN_Weighted_best_model_ablation.pth
+
+--- Training: ResNet_Std ---
+Epoch 01: Val-AUPRC = 0.9068 (Best: 0.0000)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 02: Val-AUPRC = 0.9144 (Best: 0.9068)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 03: Val-AUPRC = 0.9153 (Best: 0.9144)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 04: Val-AUPRC = 0.9109 (Best: 0.9153)
+⚠️ Keine Verbesserung (1/4)
+Epoch 05: Val-AUPRC = 0.9167 (Best: 0.9153)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 06: Val-AUPRC = 0.9124 (Best: 0.9167)
+⚠️ Keine Verbesserung (1/4)
+Epoch 07: Val-AUPRC = 0.9067 (Best: 0.9167)
+⚠️ Keine Verbesserung (2/4)
+Epoch 08: Val-AUPRC = 0.9091 (Best: 0.9167)
+⚠️ Keine Verbesserung (3/4)
+Epoch 09: Val-AUPRC = 0.9021 (Best: 0.9167)
+⚠️ Keine Verbesserung (4/4)
+🛑 Early Stopping! Training abgebrochen in Epoche 9
+Bestes Modell gespeichert unter: models/ablation_study\ResNet_Std_best_model_ablation.pth
+
+--- Training: ResNet_Weighted ---
+Epoch 01: Val-AUPRC = 0.9150 (Best: 0.0000)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 02: Val-AUPRC = 0.9198 (Best: 0.9150)
+⭐ Verbesserung! Modell gemerkt.
+Epoch 03: Val-AUPRC = 0.9160 (Best: 0.9198)
+⚠️ Keine Verbesserung (1/4)
+Epoch 04: Val-AUPRC = 0.9110 (Best: 0.9198)
+⚠️ Keine Verbesserung (2/4)
+Epoch 05: Val-AUPRC = 0.9123 (Best: 0.9198)
+⚠️ Keine Verbesserung (3/4)
+Epoch 06: Val-AUPRC = 0.9096 (Best: 0.9198)
+⚠️ Keine Verbesserung (4/4)
+🛑 Early Stopping! Training abgebrochen in Epoche 6
+Bestes Modell gespeichert unter: models/ablation_study\ResNet_Weighted_best_model_ablation.pth
