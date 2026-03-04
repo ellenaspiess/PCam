@@ -10,8 +10,8 @@ import numpy as np
 import torch
 from torch import nn, optim
 
-from pcam.data.dataloaders import get_pcam_dataloaders
-from pcam.data.datasets import resolve_reference_image_path
+from pcam.preprocessing.dataloaders import get_pcam_dataloaders
+from pcam.preprocessing.datasets import resolve_reference_image_path
 from pcam.models.small_cnn import SmallCNN
 from pcam.training.evaluation import (
     collect_labels_and_scores,

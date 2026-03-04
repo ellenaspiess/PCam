@@ -13,7 +13,7 @@ import torch
 from torch import nn, optim
 from torch.optim import lr_scheduler
 
-from pcam.data.dataloaders import get_pcam_dataloaders
+from pcam.preprocessing.dataloaders import get_pcam_dataloaders
 from pcam.models.resnet import ResNetConfig, ResNetPCam
 from pcam.models.small_cnn import SmallCNN
 from pcam.training.evaluation import evaluate_binary_classifier
