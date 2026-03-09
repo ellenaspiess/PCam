@@ -1,0 +1,21 @@
+{
+  "model_name": "small_cnn",
+  "search_mode": "broad",
+  "tl_mode": null,
+  "data_root": "data/raw",
+  "num_trials": 40,
+  "num_epochs": 3,
+  "num_workers": 0,
+  "stain_normalization": "macenko",
+  "stain_reference_image": null,
+  "limit_per_split": 15000,
+  "base_seed": 42,
+  "n_jobs": 1,
+  "timeout_seconds": null,
+  "tpe_startup_trials": 12,
+  "pruner_startup_trials": 6,
+  "pruner_warmup_steps": 1,
+  "save_top_k": 10,
+  "storage": "sqlite:////Users/Ellena/Documents/PCAM/PCam/experiments/optuna/small_cnn_broad.db",
+  "study_name": "small_cnn_broad"
+}
