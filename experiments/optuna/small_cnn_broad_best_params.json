@@ -1,0 +1,17 @@
+{
+  "study_name": "small_cnn_broad",
+  "model_name": "small_cnn",
+  "tl_mode": null,
+  "search_mode": "broad",
+  "best_value_val_auprc": 0.8725673931838125,
+  "best_params": {
+    "lr": 0.002148897725738097,
+    "weight_decay": 4.66798395227355e-05,
+    "dropout_p": 0.2840273476137929,
+    "batch_size": 32,
+    "scheduler": "none",
+    "early_stopping_patience": 3
+  },
+  "best_trial_number": 17,
+  "n_trials_total": 81
+}

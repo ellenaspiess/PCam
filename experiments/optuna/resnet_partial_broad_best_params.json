@@ -1,0 +1,17 @@
+{
+  "study_name": "resnet_partial_broad",
+  "model_name": "resnet",
+  "tl_mode": "partial",
+  "search_mode": "broad",
+  "best_value_val_auprc": 0.9064818788316534,
+  "best_params": {
+    "lr": 0.0019688692828782367,
+    "weight_decay": 1.9055260984437722e-06,
+    "batch_size": 64,
+    "dropout_p": 0.26105911401720916,
+    "scheduler": "cosine",
+    "early_stopping_patience": 3
+  },
+  "best_trial_number": 15,
+  "n_trials_total": 20
+}
