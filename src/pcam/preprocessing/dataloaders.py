@@ -19,6 +19,7 @@ def get_pcam_dataloaders(
     stain_normalization: str = "macenko",
     stain_reference_image: str | Path | None = None,
     limit_per_split: int | None = None,
+    limit_train_samples: int | None = None,
 ) -> Dict[str, DataLoader]:
     """Build train/val/test dataloaders for PCam.
 
@@ -30,6 +31,7 @@ def get_pcam_dataloaders(
         stain_normalization: One of ``macenko``, ``reinhard``, ``none``.
         stain_reference_image: Optional explicit reference image path.
         limit_per_split: Optional cap on examples per split for fast runs.
+        limit_train_samples: Optional cap only for train split (val/test stay full).
 
     Returns:
         Mapping ``{"train": DataLoader, "val": DataLoader, "test": DataLoader}``.
@@ -60,6 +62,8 @@ def get_pcam_dataloaders(
 
         if limit_per_split is not None:
             ds = Subset(ds, range(min(len(ds), limit_per_split)))
+        elif split == "train" and limit_train_samples is not None:
+            ds = Subset(ds, range(min(len(ds), limit_train_samples)))
 
         loaders[split] = DataLoader(
             ds,

@@ -28,6 +28,21 @@ def _set_global_seed(seed: int) -> None:
     torch.manual_seed(seed)
 
 
+def _resolve_device(device_name: str) -> torch.device:
+    """Resolve runtime device from user selection."""
+    if device_name == "cpu":
+        return torch.device("cpu")
+    if device_name == "mps":
+        if not torch.backends.mps.is_available():
+            raise RuntimeError("Requested device 'mps' but MPS is not available.")
+        return torch.device("mps")
+    if device_name == "auto":
+        if torch.backends.mps.is_available():
+            return torch.device("mps")
+        return torch.device("cpu")
+    raise ValueError(f"Unsupported device: {device_name}")
+
+
 def _train_one_epoch(
     model: nn.Module,
     dataloader,
@@ -125,9 +140,9 @@ def _small_cnn_objective(
     limit_per_split: int | None,
     search_mode: SearchMode,
     base_seed: int,
+    device: torch.device,
 ) -> float:
     """Optuna objective for SmallCNN maximizing validation AUPRC."""
-    device = torch.device("cpu")
     _set_global_seed(base_seed + trial.number)
     params = _sample_small_cnn_params(trial, search_mode)
 
@@ -193,9 +208,9 @@ def _resnet_objective(
     search_mode: SearchMode,
     base_seed: int,
     tl_mode: str,
+    device: torch.device,
 ) -> float:
     """Optuna objective for ResNet transfer-learning variants."""
-    device = torch.device("cpu")
     _set_global_seed(base_seed + trial.number)
     params = _sample_resnet_params(trial, search_mode)
 
@@ -272,6 +287,7 @@ def run_optuna_search(
     pruner_startup_trials: int = 5,
     pruner_warmup_steps: int = 1,
     save_top_k: int = 10,
+    device_name: str = "cpu",
 ) -> dict[str, Any]:
     """Run Optuna search for ``small_cnn`` or ``resnet`` and persist artifacts.
 
@@ -296,6 +312,9 @@ def run_optuna_search(
             if tl_mode is None
             else f"{model_name}_{tl_mode}_{search_mode}_search"
         )
+
+    device = _resolve_device(device_name)
+    print(f"Using device: {device}")
 
     storage = f"sqlite:///{(output_dir / f'{study_name}.db').resolve()}"
     sampler = optuna.samplers.TPESampler(
@@ -330,6 +349,7 @@ def run_optuna_search(
             limit_per_split=limit_per_split,
             search_mode=search_mode,
             base_seed=base_seed,
+            device=device,
         )
     else:
         objective = lambda trial: _resnet_objective(
@@ -343,6 +363,7 @@ def run_optuna_search(
             search_mode=search_mode,
             base_seed=base_seed,
             tl_mode=tl_mode,
+            device=device,
         )
 
     study.optimize(
@@ -412,6 +433,7 @@ def run_optuna_search(
         "pruner_startup_trials": pruner_startup_trials,
         "pruner_warmup_steps": pruner_warmup_steps,
         "save_top_k": save_top_k,
+        "device": str(device),
         "storage": storage,
         "study_name": study_name,
     }
@@ -453,6 +475,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pruner-startup-trials", type=int, default=5)
     parser.add_argument("--pruner-warmup-steps", type=int, default=1)
     parser.add_argument("--save-top-k", type=int, default=10)
+    parser.add_argument("--device", choices=["cpu", "mps", "auto"], default="cpu")
     return parser
 
 
@@ -480,6 +503,7 @@ def main() -> None:
         pruner_startup_trials=args.pruner_startup_trials,
         pruner_warmup_steps=args.pruner_warmup_steps,
         save_top_k=args.save_top_k,
+        device_name=args.device,
     )
 
 

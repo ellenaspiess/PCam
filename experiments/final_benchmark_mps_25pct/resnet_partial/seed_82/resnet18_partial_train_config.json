@@ -1,0 +1,19 @@
+{
+  "data_root": "data/raw",
+  "num_epochs": 100,
+  "batch_size": 32,
+  "lr": 0.00010756759793777112,
+  "weight_decay": 0.0001244891844633782,
+  "scheduler": "plateau",
+  "dropout_p": 0.17772437065861274,
+  "tl_mode": "partial",
+  "num_workers": 0,
+  "stain_normalization": "macenko",
+  "stain_reference_image": "experiments/stain_refs/reference_image.npy",
+  "save_every": 5,
+  "early_stopping_patience": 2,
+  "early_stopping_min_delta": 0.0001,
+  "limit_per_split": null,
+  "limit_train_samples": 65536,
+  "seed": 82
+}

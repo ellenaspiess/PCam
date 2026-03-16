@@ -1,0 +1,5 @@
+== run_tuning started at 2026-03-10 17:16:15 ==
+config: study_prefix=mps_full_v1 device=mps output_dir=experiments/optuna
+== Phase 2: narrow refinement on full data ==
+== Phase 1: broad search on subset (limit_per_split=15000) ==
+[2026-03-10 17:16:15] [1/6] START mps_full_v1_small_cnn_broad

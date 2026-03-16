@@ -36,6 +36,7 @@ def train_small_cnn(
     weight_decay: float = 1e-5,
     scheduler: str = "cosine",
     limit_per_split: int | None = None,
+    limit_train_samples: int | None = None,
     dropout_p: float = 0.1,
     num_workers: int = 0,
     stain_normalization: str = "macenko",
@@ -54,7 +55,7 @@ def train_small_cnn(
             - best state by validation loss (or ``None``)
             - best state by validation AUPRC (or ``None``)
     """
-    device = torch.device("cpu")
+    device = torch.device("mps")
     print("Using device:", device)
     set_global_seed(seed)
 
@@ -70,6 +71,7 @@ def train_small_cnn(
         stain_normalization=stain_normalization,
         stain_reference_image=resolved_reference_image,
         limit_per_split=limit_per_split,
+        limit_train_samples=limit_train_samples,
     )
 
     model = SmallCNN(dropout_p=dropout_p).to(device)
@@ -219,6 +221,7 @@ def train_small_cnn(
         "weight_decay": weight_decay,
         "scheduler": scheduler,
         "limit_per_split": limit_per_split,
+        "limit_train_samples": limit_train_samples,
         "dropout_p": dropout_p,
         "num_workers": num_workers,
         "stain_normalization": stain_normalization,
@@ -249,6 +252,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--weight-decay", type=float, default=None)
     parser.add_argument("--scheduler", choices=["none", "cosine", "plateau"], default=None)
     parser.add_argument("--limit-per-split", type=int, default=None)
+    parser.add_argument("--limit-train-samples", type=int, default=None)
     parser.add_argument("--dropout-p", type=float, default=None)
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument(
@@ -315,6 +319,7 @@ def main() -> None:
         weight_decay=float(cfg["weight_decay"]),
         scheduler=str(cfg["scheduler"]),
         limit_per_split=args.limit_per_split,
+        limit_train_samples=args.limit_train_samples,
         dropout_p=float(cfg["dropout_p"]),
         num_workers=args.num_workers,
         stain_normalization=args.stain_normalization,
