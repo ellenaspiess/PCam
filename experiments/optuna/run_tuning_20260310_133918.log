@@ -1,0 +1,10 @@
+== run_tuning started at 2026-03-10 13:39:18 ==
+config: study_prefix=mps_full_v1 device=mps output_dir=experiments/optuna
+== Phase 2: narrow refinement on full data ==
+== Phase 1: broad search on subset (limit_per_split=15000) ==
+[2026-03-10 13:39:18] [1/6] START mps_full_v1_small_cnn_broad
+[2026-03-10 14:44:50] [1/6] DONE  mps_full_v1_small_cnn_broad (3932s)
+[2026-03-10 14:44:50] [2/6] START mps_full_v1_resnet_frozen_broad
+[2026-03-10 15:34:31] [2/6] DONE  mps_full_v1_resnet_frozen_broad (2981s)
+[2026-03-10 15:34:31] [3/6] START mps_full_v1_resnet_partial_broad
+[2026-03-10 16:28:40] [3/6] DONE  mps_full_v1_resnet_partial_broad (3249s)

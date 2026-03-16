@@ -7,6 +7,7 @@ so all training/tuning entry points share the exact same preprocessing logic.
 
 import json
 import random
+import warnings
 from pathlib import Path
 from typing import Dict
 
@@ -71,10 +72,21 @@ class TorchstainNormalization:
     def _fit(self, img_hwc_u8: np.ndarray) -> None:
         """Fit stain statistics on a reference image."""
         assert self._normalizer is not None
+        if self._is_degenerate_patch(img_hwc_u8):
+            self._is_fit = False
+            return
         try:
-            self._normalizer.fit(img_hwc_u8)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                self._normalizer.fit(img_hwc_u8)
         except TypeError:
-            self._normalizer.fit(I=img_hwc_u8)
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", RuntimeWarning)
+                    self._normalizer.fit(I=img_hwc_u8)
+            except Exception:
+                self._is_fit = False
+                return
         except Exception:
             self._is_fit = False
             return
@@ -83,15 +95,35 @@ class TorchstainNormalization:
     def _normalize(self, img_hwc_u8: np.ndarray):
         """Apply stain normalization and return normalized image array."""
         assert self._normalizer is not None
+        if self._is_degenerate_patch(img_hwc_u8):
+            return img_hwc_u8
         try:
-            out = self._normalizer.normalize(img_hwc_u8)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                out = self._normalizer.normalize(img_hwc_u8)
         except TypeError:
-            out = self._normalizer.normalize(I=img_hwc_u8)
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", RuntimeWarning)
+                    out = self._normalizer.normalize(I=img_hwc_u8)
+            except Exception:
+                return img_hwc_u8
         except Exception:
             # Numerical edge cases (e.g. low-variance background patches) can
             # break Macenko eigen decomposition. Fall back to identity.
             return img_hwc_u8
-        return out[0] if isinstance(out, tuple) else out
+        arr = out[0] if isinstance(out, tuple) else out
+        arr = np.asarray(arr)
+        if not np.isfinite(arr).all():
+            return img_hwc_u8
+        return arr
+
+    @staticmethod
+    def _is_degenerate_patch(img_hwc_u8: np.ndarray) -> bool:
+        """Return True for low-variance patches that destabilize Macenko."""
+        if img_hwc_u8.size == 0:
+            return True
+        return float(np.std(img_hwc_u8)) < 1e-3
 
     def __call__(self, img: torch.Tensor) -> torch.Tensor:
         # Input tensor is [C,H,W] in [0,1].

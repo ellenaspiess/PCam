@@ -84,6 +84,34 @@ Useful overrides for the script:
 
 ```bash
 TIMEOUT_SECONDS=21600 N_JOBS=1 SAVE_TOP_K=15 bash scripts/run_tuning.sh
+DEVICE=mps STUDY_PREFIX=cpu_fast_v1 bash scripts/run_tuning.sh
+```
+
+Process tracking: the script prints `[step/6] START/DONE` lines and writes a
+run log to `experiments/optuna/run_tuning_YYYYmmdd_HHMMSS.log` (override with
+`TRACKER_LOG=/path/to/file.log`).
+
+Use a fresh study namespace without deleting old runs:
+
+```bash
+STUDY_PREFIX=cpu_fast_v1 bash scripts/run_tuning.sh
+```
+
+Run only narrow (resume-friendly, skips broad):
+
+```bash
+RUN_PHASES=narrow STUDY_PREFIX=cpu_fast_v1 bash scripts/run_tuning.sh
+```
+
+By default, narrow refinement runs on the full dataset. Use `NARROW_LIMIT` only
+if you intentionally want a subset for faster iteration.
+
+CPU-fast overrides for narrow phase (optional):
+
+```bash
+NARROW_LIMIT=20000 SCNN_NARROW_TRIALS=10 SCNN_NARROW_EPOCHS=4 \
+RESNET_FROZEN_NARROW_TRIALS=6 RESNET_PARTIAL_NARROW_TRIALS=6 RESNET_NARROW_EPOCHS=4 \
+bash scripts/run_tuning.sh
 ```
 
 ## Final Benchmark (Multi-Seed)

@@ -1,0 +1,17 @@
+{
+  "study_name": "mps_full_v1_resnet_frozen_narrow",
+  "model_name": "resnet",
+  "tl_mode": "frozen",
+  "search_mode": "narrow",
+  "best_value_val_auprc": 0.8372813439239182,
+  "best_params": {
+    "lr": 0.00018367595482349306,
+    "weight_decay": 9.078835431980899e-05,
+    "batch_size": 32,
+    "dropout_p": 0.2497327922401265,
+    "scheduler": "cosine",
+    "early_stopping_patience": 2
+  },
+  "best_trial_number": 1,
+  "n_trials_total": 8
+}

@@ -46,13 +46,14 @@ def train_resnet(
     early_stopping_patience: int = 8,
     early_stopping_min_delta: float = 1e-4,
     limit_per_split: int | None = None,
+    limit_train_samples: int | None = None,
     seed: int = 42,
 ) -> Path:
     """Train ResNet18 transfer-learning variant and persist all run artifacts.
 
     The final exported model is the checkpoint with best validation AUPRC.
     """
-    device = torch.device("cpu")
+    device = torch.device("mps")
     print("Using device:", device)
     set_global_seed(seed)
     resolved_reference_image = resolve_reference_image_path(stain_normalization, stain_reference_image)
@@ -65,6 +66,7 @@ def train_resnet(
         stain_normalization=stain_normalization,
         stain_reference_image=resolved_reference_image,
         limit_per_split=limit_per_split,
+        limit_train_samples=limit_train_samples,
     )
 
     config = ResNetConfig(tl_mode=tl_mode, pretrained=True, dropout_p=dropout_p)
@@ -228,6 +230,7 @@ def train_resnet(
         "early_stopping_patience": early_stopping_patience,
         "early_stopping_min_delta": early_stopping_min_delta,
         "limit_per_split": limit_per_split,
+        "limit_train_samples": limit_train_samples,
         "seed": seed,
     }
 
@@ -265,6 +268,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--early-stopping-patience", type=int, default=None)
     parser.add_argument("--early-stopping-min-delta", type=float, default=None)
     parser.add_argument("--limit-per-split", type=int, default=None)
+    parser.add_argument("--limit-train-samples", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
     return parser
 
@@ -330,6 +334,7 @@ def main() -> None:
         early_stopping_patience=int(cfg["early_stopping_patience"]),
         early_stopping_min_delta=float(cfg["early_stopping_min_delta"]),
         limit_per_split=args.limit_per_split,
+        limit_train_samples=args.limit_train_samples,
         seed=int(cfg["seed"]),
     )
 

@@ -5,3 +5,4 @@ venv/
 data/
 *.py[cod]
 *.ipynb_checkpoints
+*.pt
