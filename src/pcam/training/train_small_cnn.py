@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Training entry point for the SmallCNN PCam baseline (CPU-only)."""
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -10,9 +11,9 @@ import numpy as np
 import torch
 from torch import nn, optim
 
+from pcam.models.small_cnn import SmallCNN
 from pcam.preprocessing.dataloaders import get_pcam_dataloaders
 from pcam.preprocessing.datasets import resolve_reference_image_path
-from pcam.models.small_cnn import SmallCNN
 from pcam.training.evaluation import (
     collect_labels_and_scores,
     compute_binary_curve_data,
@@ -61,7 +62,10 @@ def train_small_cnn(
 
     ckpt_dir = Path(ckpt_dir)
     ckpt_dir.mkdir(parents=True, exist_ok=True)
-    resolved_reference_image = resolve_reference_image_path(stain_normalization, stain_reference_image)
+    resolved_reference_image = resolve_reference_image_path(
+        stain_normalization,
+        stain_reference_image,
+    )
 
     loaders = get_pcam_dataloaders(
         data_root=data_root,
@@ -185,13 +189,17 @@ def train_small_cnn(
             break
 
     if best_state_auprc is not None:
-        # Final model is selected by validation AUPRC to match optimization target.
         model.load_state_dict(best_state_auprc)
         torch.save(best_state_auprc, ckpt_dir / "small_cnn_final.pt")
     else:
         torch.save(model.state_dict(), ckpt_dir / "small_cnn_final.pt")
 
-    test_loss, test_auroc, test_auprc, test_f1 = evaluate_binary_classifier(model, loaders["test"], criterion, device)
+    test_loss, test_auroc, test_auprc, test_f1 = evaluate_binary_classifier(
+        model,
+        loaders["test"],
+        criterion,
+        device,
+    )
     test_metrics = {
         "test_loss": float(test_loss),
         "test_auroc": float(test_auroc),
@@ -201,7 +209,11 @@ def train_small_cnn(
     with (ckpt_dir / "test_metrics.json").open("w", encoding="utf-8") as f:
         json.dump(test_metrics, f, indent=2)
 
-    test_y_true, test_y_score = collect_labels_and_scores(model=model, dataloader=loaders["test"], device=device)
+    test_y_true, test_y_score = collect_labels_and_scores(
+        model=model,
+        dataloader=loaders["test"],
+        device=device,
+    )
     curve_data = compute_binary_curve_data(test_y_true, test_y_score)
     with (ckpt_dir / "test_curves.json").open("w", encoding="utf-8") as f:
         json.dump(curve_data, f, indent=2)
@@ -225,7 +237,9 @@ def train_small_cnn(
         "dropout_p": dropout_p,
         "num_workers": num_workers,
         "stain_normalization": stain_normalization,
-        "stain_reference_image": str(resolved_reference_image) if resolved_reference_image else None,
+        "stain_reference_image": (
+            str(resolved_reference_image) if resolved_reference_image else None
+        ),
         "save_every": save_every,
         "early_stopping_patience": early_stopping_patience,
         "early_stopping_min_delta": early_stopping_min_delta,

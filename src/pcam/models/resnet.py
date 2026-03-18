@@ -1,5 +1,6 @@
-from __future__ import annotations
 """ResNet18 model wrapper for PCam binary classification."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Literal

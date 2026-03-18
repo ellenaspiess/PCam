@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 """Aggregate multi-seed benchmark runs into per-seed and per-model summaries."""
+
+from __future__ import annotations
 
 import argparse
 import csv
@@ -45,7 +46,11 @@ def _load_json(path: Path) -> dict:
 def _required_artifacts(model: str, seed_dir: Path) -> tuple[Path, Path, Path] | None:
     """Return required artifact paths for one model/seed run."""
     if model == "small_cnn":
-        return seed_dir / "hist.json", seed_dir / "train_config.json", seed_dir / "test_metrics.json"
+        return (
+            seed_dir / "hist.json",
+            seed_dir / "train_config.json",
+            seed_dir / "test_metrics.json",
+        )
     elif model == "resnet_frozen":
         return (
             seed_dir / "resnet18_frozen_hist.json",
@@ -128,7 +133,9 @@ def _aggregate(rows: list[dict]) -> list[dict]:
 
 def main() -> None:
     """CLI entry point for benchmark aggregation."""
-    parser = argparse.ArgumentParser(description="Summarize final benchmark runs into CSV/JSON.")
+    parser = argparse.ArgumentParser(
+        description="Summarize final benchmark runs into CSV/JSON."
+    )
     parser.add_argument("--input-dir", default="experiments/final_benchmark")
     parser.add_argument("--output-prefix", default=None)
     parser.add_argument(
@@ -177,8 +184,9 @@ def main() -> None:
 
             missing_files = [path for path in required if not path.exists()]
             if missing_files:
+                missing_names = ", ".join(str(path.name) for path in missing_files)
                 missing_messages.append(
-                    f"Incomplete run at {seed_dir}; missing: {', '.join(str(path.name) for path in missing_files)}"
+                    f"Incomplete run at {seed_dir}; missing: {missing_names}"
                 )
                 continue
 
@@ -192,8 +200,15 @@ def main() -> None:
 
     if missing_messages and args.strict:
         lines = "\n".join(f"- {msg}" for msg in missing_messages[:50])
-        suffix = "" if len(missing_messages) <= 50 else f"\n... and {len(missing_messages) - 50} more"
-        raise SystemExit(f"Benchmark summary aborted due to missing/incomplete runs:\n{lines}{suffix}")
+        suffix = (
+            ""
+            if len(missing_messages) <= 50
+            else f"\n... and {len(missing_messages) - 50} more"
+        )
+        raise SystemExit(
+            "Benchmark summary aborted due to missing/incomplete runs:\n"
+            f"{lines}{suffix}"
+        )
     if missing_messages and not args.strict:
         print("WARNING: Some runs were missing/incomplete and skipped:")
         for msg in missing_messages[:50]:
@@ -220,7 +235,12 @@ def main() -> None:
             writer.writeheader()
             writer.writerows(aggregates)
 
-    payload = {"input_dir": str(input_dir), "num_runs": len(rows), "per_seed": rows, "per_model": aggregates}
+    payload = {
+        "input_dir": str(input_dir),
+        "num_runs": len(rows),
+        "per_seed": rows,
+        "per_model": aggregates,
+    }
     with summary_json.open("w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
 
