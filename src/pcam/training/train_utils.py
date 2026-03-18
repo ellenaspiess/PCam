@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Shared training utilities for configuration, scheduling, and early stopping."""
+
+from __future__ import annotations
 
 import json
 import random

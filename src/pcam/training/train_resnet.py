@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Training entry point for ResNet18 transfer-learning variants on PCam."""
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -10,9 +11,9 @@ import numpy as np
 import torch
 from torch import nn, optim
 
+from pcam.models.resnet import ResNetConfig, ResNetPCam
 from pcam.preprocessing.dataloaders import get_pcam_dataloaders
 from pcam.preprocessing.datasets import resolve_reference_image_path
-from pcam.models.resnet import ResNetConfig, ResNetPCam
 from pcam.training.evaluation import (
     collect_labels_and_scores,
     compute_binary_curve_data,
@@ -56,7 +57,10 @@ def train_resnet(
     device = torch.device("mps")
     print("Using device:", device)
     set_global_seed(seed)
-    resolved_reference_image = resolve_reference_image_path(stain_normalization, stain_reference_image)
+    resolved_reference_image = resolve_reference_image_path(
+        stain_normalization,
+        stain_reference_image,
+    )
 
     loaders = get_pcam_dataloaders(
         data_root=data_root,
@@ -182,13 +186,17 @@ def train_resnet(
 
     out_path = output_dir / f"resnet18_{tl_mode}_final.pt"
     if best_state_auprc is not None:
-        # Keep final checkpoint aligned with the model-selection criterion.
         model.load_state_dict(best_state_auprc)
         torch.save(best_state_auprc, out_path)
     else:
         torch.save(model.state_dict(), out_path)
 
-    test_loss, test_auroc, test_auprc, test_f1 = evaluate_binary_classifier(model, loaders["test"], criterion, device)
+    test_loss, test_auroc, test_auprc, test_f1 = evaluate_binary_classifier(
+        model,
+        loaders["test"],
+        criterion,
+        device,
+    )
     test_metrics = {
         "test_loss": float(test_loss),
         "test_auroc": float(test_auroc),
@@ -198,7 +206,11 @@ def train_resnet(
     with (output_dir / f"resnet18_{tl_mode}_test_metrics.json").open("w", encoding="utf-8") as f:
         json.dump(test_metrics, f, indent=2)
 
-    test_y_true, test_y_score = collect_labels_and_scores(model=model, dataloader=loaders["test"], device=device)
+    test_y_true, test_y_score = collect_labels_and_scores(
+        model=model,
+        dataloader=loaders["test"],
+        device=device,
+    )
     curve_data = compute_binary_curve_data(test_y_true, test_y_score)
     with (output_dir / f"resnet18_{tl_mode}_test_curves.json").open("w", encoding="utf-8") as f:
         json.dump(curve_data, f, indent=2)
@@ -207,7 +219,11 @@ def train_resnet(
         y_true=test_y_true,
         y_score=test_y_score,
     )
-    save_binary_curve_plot(curve_data, output_dir / f"resnet18_{tl_mode}_test_curves.png", title_prefix=f"ResNet-{tl_mode} Test")
+    save_binary_curve_plot(
+        curve_data,
+        output_dir / f"resnet18_{tl_mode}_test_curves.png",
+        title_prefix=f"ResNet-{tl_mode} Test",
+    )
 
     print(
         f"[ResNet-{tl_mode}] Test metrics | "
@@ -225,7 +241,9 @@ def train_resnet(
         "tl_mode": tl_mode,
         "num_workers": num_workers,
         "stain_normalization": stain_normalization,
-        "stain_reference_image": str(resolved_reference_image) if resolved_reference_image else None,
+        "stain_reference_image": (
+            str(resolved_reference_image) if resolved_reference_image else None
+        ),
         "save_every": save_every,
         "early_stopping_patience": early_stopping_patience,
         "early_stopping_min_delta": early_stopping_min_delta,

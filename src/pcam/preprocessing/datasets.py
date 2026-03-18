@@ -1,9 +1,10 @@
-from __future__ import annotations
 """Dataset and transform utilities for PatchCamelyon (PCam).
 
 This module centralizes augmentation, stain normalization, and dataset loading
 so all training/tuning entry points share the exact same preprocessing logic.
 """
+
+from __future__ import annotations
 
 import json
 import random
@@ -17,7 +18,6 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import datasets, transforms
 from torchvision.transforms import functional as TF
-
 
 PCAM_SPLITS = ("train", "val", "test")
 DEFAULT_STAIN_REFERENCE_MANIFEST = Path("experiments/stain_refs/references.json")
@@ -39,7 +39,11 @@ class TorchstainNormalization:
     backends in ``torchstain`` operate on image-like arrays.
     """
 
-    def __init__(self, method: str = "macenko", reference_image_path: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        method: str = "macenko",
+        reference_image_path: str | Path | None = None,
+    ) -> None:
         if method not in {"macenko", "reinhard"}:
             raise ValueError(f"Unsupported torchstain method: {method}")
         self.method = method
@@ -62,7 +66,6 @@ class TorchstainNormalization:
         else:
             self._normalizer = torchstain.normalizers.ReinhardNormalizer(backend="numpy")
 
-        # Prefer a fixed, pre-selected reference image if provided.
         if self.reference_image_path and self.reference_image_path.exists():
             ref = np.load(self.reference_image_path)
             if ref.dtype != np.uint8:
@@ -126,12 +129,10 @@ class TorchstainNormalization:
         return float(np.std(img_hwc_u8)) < 1e-3
 
     def __call__(self, img: torch.Tensor) -> torch.Tensor:
-        # Input tensor is [C,H,W] in [0,1].
         self._ensure_normalizer()
         img_hwc_u8 = (img.permute(1, 2, 0).cpu().numpy() * 255.0).clip(0, 255).astype(np.uint8)
 
         if not self._is_fit:
-            # Use first observed image as reference target.
             self._fit(img_hwc_u8)
             if not self._is_fit:
                 return img
@@ -225,18 +226,18 @@ def get_pcam_transforms(
             ]
         )
 
+    if stain_normalization in {"macenko", "reinhard"}:
+        stain_transform = TorchstainNormalization(
+            stain_normalization,
+            reference_image_path=stain_reference_image,
+        )
+    else:
+        stain_transform = transforms.Lambda(lambda x: x)
+
     tfms.extend(
         [
             transforms.ToTensor(),
-            (
-                TorchstainNormalization(stain_normalization, reference_image_path=stain_reference_image)
-                if stain_normalization == "macenko"
-                else (
-                    TorchstainNormalization(stain_normalization, reference_image_path=stain_reference_image)
-                    if stain_normalization == "reinhard"
-                    else transforms.Lambda(lambda x: x)
-                )
-            ),
+            stain_transform,
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )

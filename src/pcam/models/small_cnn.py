@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Small CNN baseline architecture for PCam patch classification."""
+
+from __future__ import annotations
 
 import torch
 from torch import nn

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pcam"
 version = "0.1.0"
-description = "CPU-only PCam training pipeline for SmallCNN and ResNet18"
+description = "PCam benchmark pipeline for SmallCNN and ResNet18 models"
 readme = "README.md"
 requires-python = ">=3.10"
 
@@ -15,3 +15,10 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pcam*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

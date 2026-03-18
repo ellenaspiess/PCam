@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Optuna-based hyperparameter search for PCam models (CPU-oriented)."""
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -13,9 +14,9 @@ import torch
 from torch import nn, optim
 from torch.optim import lr_scheduler
 
-from pcam.preprocessing.dataloaders import get_pcam_dataloaders
 from pcam.models.resnet import ResNetConfig, ResNetPCam
 from pcam.models.small_cnn import SmallCNN
+from pcam.preprocessing.dataloaders import get_pcam_dataloaders
 from pcam.training.evaluation import evaluate_binary_classifier
 
 SearchMode = str
@@ -168,7 +169,12 @@ def _small_cnn_objective(
 
     for epoch in range(1, num_epochs + 1):
         _train_one_epoch(model, loaders["train"], criterion, optimizer, device)
-        _, val_auroc, val_auprc, val_f1 = evaluate_binary_classifier(model, loaders["val"], criterion, device)
+        _, val_auroc, val_auprc, val_f1 = evaluate_binary_classifier(
+            model,
+            loaders["val"],
+            criterion,
+            device,
+        )
 
         trial.report(val_auprc, step=epoch)
         if trial.should_prune():
@@ -238,7 +244,12 @@ def _resnet_objective(
 
     for epoch in range(1, num_epochs + 1):
         _train_one_epoch(model, loaders["train"], criterion, optimizer, device)
-        _, val_auroc, val_auprc, val_f1 = evaluate_binary_classifier(model, loaders["val"], criterion, device)
+        _, val_auroc, val_auprc, val_f1 = evaluate_binary_classifier(
+            model,
+            loaders["val"],
+            criterion,
+            device,
+        )
 
         trial.report(val_auprc, step=epoch)
         if trial.should_prune():
@@ -338,33 +349,35 @@ def run_optuna_search(
     )
 
     if model_name == "small_cnn":
-        # Keep objective closure explicit so run config is captured in artifacts.
-        objective = lambda trial: _small_cnn_objective(
-            trial=trial,
-            data_root=data_root,
-            num_epochs=num_epochs,
-            num_workers=num_workers,
-            stain_normalization=stain_normalization,
-            stain_reference_image=stain_reference_image,
-            limit_per_split=limit_per_split,
-            search_mode=search_mode,
-            base_seed=base_seed,
-            device=device,
-        )
+        def objective(trial: optuna.Trial) -> float:
+            return _small_cnn_objective(
+                trial=trial,
+                data_root=data_root,
+                num_epochs=num_epochs,
+                num_workers=num_workers,
+                stain_normalization=stain_normalization,
+                stain_reference_image=stain_reference_image,
+                limit_per_split=limit_per_split,
+                search_mode=search_mode,
+                base_seed=base_seed,
+                device=device,
+            )
+
     else:
-        objective = lambda trial: _resnet_objective(
-            trial=trial,
-            data_root=data_root,
-            num_epochs=num_epochs,
-            num_workers=num_workers,
-            stain_normalization=stain_normalization,
-            stain_reference_image=stain_reference_image,
-            limit_per_split=limit_per_split,
-            search_mode=search_mode,
-            base_seed=base_seed,
-            tl_mode=tl_mode,
-            device=device,
-        )
+        def objective(trial: optuna.Trial) -> float:
+            return _resnet_objective(
+                trial=trial,
+                data_root=data_root,
+                num_epochs=num_epochs,
+                num_workers=num_workers,
+                stain_normalization=stain_normalization,
+                stain_reference_image=stain_reference_image,
+                limit_per_split=limit_per_split,
+                search_mode=search_mode,
+                base_seed=base_seed,
+                tl_mode=tl_mode,
+                device=device,
+            )
 
     study.optimize(
         objective,
@@ -446,7 +459,9 @@ def run_optuna_search(
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     """Create CLI parser for Optuna search configuration."""
-    parser = argparse.ArgumentParser(description="Run Optuna hyperparameter search for PCam models.")
+    parser = argparse.ArgumentParser(
+        description="Run Optuna hyperparameter search for PCam models."
+    )
     parser.add_argument("--model", choices=["small_cnn", "resnet"], required=True)
     parser.add_argument("--tl-mode", choices=["frozen", "partial"], default=None)
     parser.add_argument("--search-mode", choices=["broad", "narrow"], default="broad")

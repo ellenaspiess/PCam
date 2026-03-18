@@ -1,15 +1,28 @@
 Metadata-Version: 2.4
 Name: pcam
 Version: 0.1.0
-Summary: CPU-only PCam training pipeline for SmallCNN and ResNet18
+Summary: PCam benchmark pipeline for SmallCNN and ResNet18 models
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 
 # PCam
 
-CPU-only PCam training pipeline for PatchCamelyon metastasis detection.
+PCam benchmark pipeline for PatchCamelyon metastasis detection with shared
+preprocessing, stain normalization, Optuna tuning, model training, and
+multi-seed evaluation.
 
-## Setup (macOS, CPU only)
+## Scope
+
+This repository contains a student research pipeline for binary classification
+on PatchCamelyon (PCam). It includes:
+
+- shared preprocessing and dataloading utilities
+- optional stain normalization with fixed reference support
+- baseline training for SmallCNN and ResNet18 transfer-learning variants
+- Optuna-based hyperparameter search
+- multi-seed benchmarking and summary export
+
+## Setup
 
 ```bash
 python3 -m venv .venv
@@ -22,10 +35,21 @@ pip install -e .
 
 ```text
 src/pcam/
-  data/       # dataset + dataloader utilities
+  preprocessing/  # dataset, transforms, dataloaders
   models/     # SmallCNN and ResNet18 model definitions
   training/   # train/eval entry points and helpers
+  tuning/     # Optuna search entry points
+scripts/      # benchmark, tuning, and reporting helpers
+experiments/  # saved runs, summaries, and reference artifacts
 ```
+
+## Runtime Notes
+
+- The current training entry points are configured for Apple Silicon `mps`.
+- Existing benchmark outputs under `experiments/` were generated with the
+  current training code and should be treated as fixed paper artifacts.
+- If you only want to inspect or summarize existing results, you do not need to
+  rerun training.
 
 ## Train
 
@@ -36,8 +60,8 @@ python -m pcam.training.train_small_cnn --optuna-best-json experiments/optuna/sm
 python -m pcam.training.train_resnet --optuna-best-json experiments/optuna/resnet_partial_narrow_best_params.json --tl-mode partial
 ```
 
-Both training entry points are configured for CPU-only execution and support
-longer runs with early stopping plus optional Optuna-parameter injection.
+Both training entry points support longer runs with early stopping plus
+optional Optuna-parameter injection.
 Default stain normalization is `macenko` (via `torchstain`), configurable with
 `--stain-normalization macenko|reinhard|none`.
 
@@ -91,6 +115,34 @@ Useful overrides for the script:
 
 ```bash
 TIMEOUT_SECONDS=21600 N_JOBS=1 SAVE_TOP_K=15 bash scripts/run_tuning.sh
+DEVICE=mps STUDY_PREFIX=cpu_fast_v1 bash scripts/run_tuning.sh
+```
+
+Process tracking: the script prints `[step/6] START/DONE` lines and writes a
+run log to `experiments/optuna/run_tuning_YYYYmmdd_HHMMSS.log` (override with
+`TRACKER_LOG=/path/to/file.log`).
+
+Use a fresh study namespace without deleting old runs:
+
+```bash
+STUDY_PREFIX=cpu_fast_v1 bash scripts/run_tuning.sh
+```
+
+Run only narrow (resume-friendly, skips broad):
+
+```bash
+RUN_PHASES=narrow STUDY_PREFIX=cpu_fast_v1 bash scripts/run_tuning.sh
+```
+
+By default, narrow refinement runs on the full dataset. Use `NARROW_LIMIT` only
+if you intentionally want a subset for faster iteration.
+
+CPU-fast overrides for narrow phase (optional):
+
+```bash
+NARROW_LIMIT=20000 SCNN_NARROW_TRIALS=10 SCNN_NARROW_EPOCHS=4 \
+RESNET_FROZEN_NARROW_TRIALS=6 RESNET_PARTIAL_NARROW_TRIALS=6 RESNET_NARROW_EPOCHS=4 \
+bash scripts/run_tuning.sh
 ```
 
 ## Final Benchmark (Multi-Seed)
@@ -118,3 +170,32 @@ Outputs:
   - `experiments/final_benchmark/summary_per_seed.csv`
   - `experiments/final_benchmark/summary_per_model.csv`
   - `experiments/final_benchmark/summary.json`
+
+## Existing Artifacts
+
+The repository already contains experiment outputs for tuning and final
+benchmark runs. For a student paper, the most relevant files are usually:
+
+- `experiments/optuna/*_best_params.json` for selected hyperparameters
+- `experiments/final_benchmark_*/summary_per_seed.csv` for per-seed reporting
+- `experiments/final_benchmark_*/summary_per_model.csv` for aggregate reporting
+- per-run `test_metrics.json` and curve files for qualitative inspection
+
+## Reproducibility Notes
+
+- Fixed seeds are used for tuning and benchmark runs.
+- Final checkpoints are selected by validation AUPRC.
+- Benchmark summaries are generated from saved JSON artifacts rather than from
+  ad hoc manual reporting.
+- Stain normalization can use a fixed reference image via
+  `experiments/stain_refs/references.json`.
+
+## Optional Linting
+
+Linting is not required to reproduce the paper results, but it is useful for
+keeping the repository tidy.
+
+```bash
+python -m pip install ruff
+ruff check .
+```

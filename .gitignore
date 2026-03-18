@@ -6,3 +6,15 @@ data/
 *.py[cod]
 *.ipynb_checkpoints
 *.pt
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.log
+*.tmp
+*.swp
+build/
+dist/
+*.egg-info/
+experiments/runs/
+experiments/optuna/*.db
+experiments/optuna/run_tuning_*.log

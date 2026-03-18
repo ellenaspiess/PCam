@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Evaluation helpers for binary PCam classifiers."""
+
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Tuple
@@ -7,7 +8,13 @@ from typing import Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from sklearn.metrics import average_precision_score, f1_score, precision_recall_curve, roc_auc_score, roc_curve
+from sklearn.metrics import (
+    average_precision_score,
+    f1_score,
+    precision_recall_curve,
+    roc_auc_score,
+    roc_curve,
+)
 from torch import nn
 from torch.utils.data import DataLoader
 
@@ -66,7 +73,6 @@ def evaluate_binary_classifier(
         all_labels.append(labels.cpu())
         all_probs.append(probs.cpu())
 
-    # Aggregate over full split before computing metrics.
     total_loss /= len(dataloader.dataset)
     y_true = torch.cat(all_labels).numpy()
     y_score = torch.cat(all_probs).numpy()

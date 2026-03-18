@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 """Select representative stain-reference patches from PCam train split."""
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -31,14 +32,15 @@ def _compute_patch_score(img_u8: np.ndarray) -> tuple[float, float]:
         sat_mean = 0.0
         gray_std = 0.0
 
-    # Prefer tissue-rich, color-varied, non-flat patches.
     score = tissue_fraction * (sat_mean + 1e-6) * (gray_std + 1e-6)
     return float(score), tissue_fraction
 
 
 def main() -> None:
     """CLI entry point for selecting and saving stain reference artifacts."""
-    parser = argparse.ArgumentParser(description="Select stain normalization reference patches from PCam train split.")
+    parser = argparse.ArgumentParser(
+        description="Select stain normalization reference patches from PCam train split."
+    )
     parser.add_argument("--data-root", default="data/raw")
     parser.add_argument("--output-dir", default="experiments/stain_refs")
     parser.add_argument("--num-candidates", type=int, default=5000)
@@ -62,15 +64,22 @@ def main() -> None:
         img_u8 = np.asarray(img.convert("RGB"), dtype=np.uint8)
         score, tissue_fraction = _compute_patch_score(img_u8)
         if score > 0:
-            rows.append({"index": int(idx), "score": float(score), "tissue_fraction": float(tissue_fraction)})
+            rows.append(
+                {
+                    "index": int(idx),
+                    "score": float(score),
+                    "tissue_fraction": float(tissue_fraction),
+                }
+            )
 
     if not rows:
-        raise RuntimeError("No suitable reference candidates found. Try increasing --num-candidates.")
+        raise RuntimeError(
+            "No suitable reference candidates found. Try increasing --num-candidates."
+        )
 
     rows.sort(key=lambda r: r["score"], reverse=True)
     selected = rows[: min(args.num_select, len(rows))]
 
-    # Use the best-scoring patch as fixed reference image.
     primary_index = selected[0]["index"]
     primary_img, _ = ds[primary_index]
     primary_u8 = np.asarray(primary_img.convert("RGB"), dtype=np.uint8)
